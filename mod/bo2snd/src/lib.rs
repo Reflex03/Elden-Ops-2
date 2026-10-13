@@ -148,6 +148,8 @@ pub struct SoundIndex {
     /// BO2 alias name -> sound.
     pub sounds: BTreeMap<String, SoundRef>,
     pub missing: Vec<String>,
+    #[serde(default)]
+    pub banks_scanned: usize,
 }
 
 pub const INDEX_VERSION: u32 = 1;
@@ -176,7 +178,10 @@ pub fn find_banks(dir: &Path) -> Vec<PathBuf> {
     out
 }
 
-/// Finds the wanted file names (alias -> FileSource) in the banks under `bo2_dir/zone`.
+/// Where BO2 keeps its sound banks: `sound/` (OpenAssetTools' T6 search paths), and `zone/` to be safe.
+pub const BANK_DIRS: &[&str] = &["sound", "zone"];
+
+/// Finds the wanted file names (alias -> FileSource) in the banks under `bo2_dir/sound` and `bo2_dir/zone`.
 pub fn locate(bo2_dir: &Path, wanted: &HashMap<String, String>, log: &mut dyn FnMut(String)) -> SoundIndex {
     let mut by_id: HashMap<u32, Vec<&String>> = HashMap::new();
     for (alias, file_source) in wanted {
@@ -184,7 +189,9 @@ pub fn locate(bo2_dir: &Path, wanted: &HashMap<String, String>, log: &mut dyn Fn
     }
     let mut index = SoundIndex { version: INDEX_VERSION, bo2_dir: bo2_dir.to_string_lossy().into_owned(), ..Default::default() };
     let mut found: HashSet<u32> = HashSet::new();
-    for bank in find_banks(&bo2_dir.join("zone")) {
+    let banks: Vec<PathBuf> = BANK_DIRS.iter().flat_map(|d| find_banks(&bo2_dir.join(d))).collect();
+    index.banks_scanned = banks.len();
+    for bank in banks {
         if found.len() == by_id.len() {
             break;
         }
@@ -320,7 +327,7 @@ mod tests {
     fn synthetic_bank_round_trip() {
         // Build a bank the way the game lays one out and find a sound in it.
         let dir = std::env::temp_dir().join(format!("bo2snd-test-{}", std::process::id()));
-        let zone = dir.join("zone/all");
+        let zone = dir.join("sound");
         std::fs::create_dir_all(&zone).unwrap();
         let audio = b"fLaC-not-really-audio".to_vec();
         let data_off = HEADER_SIZE as u32;
@@ -346,7 +353,8 @@ mod tests {
         let wanted = HashMap::from([("mus_zombie_round_start".to_string(), "zmb/mus/round_start.flac".to_string())]);
         let idx = locate(&dir, &wanted, &mut |m| eprintln!("{m}"));
         let s = &idx.sounds["mus_zombie_round_start"];
-        assert_eq!(s.bank, "zone/all/zm_test.all.sabl");
+        assert_eq!(s.bank, "sound/zm_test.all.sabl");
+        assert_eq!(idx.banks_scanned, 1);
         assert_eq!((s.rate, s.channels, s.format), (48000, 2, FORMAT_FLAC));
         assert_eq!(read_sound(&dir, s).unwrap(), audio);
         std::fs::remove_dir_all(&dir).ok();

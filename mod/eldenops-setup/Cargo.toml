@@ -5,9 +5,12 @@ edition.workspace = true
 license.workspace = true
 
 [[bin]]
-name = "EldenOpsSetup"
+name = "EldenOps"
 path = "src/main.rs"
 
 [dependencies]
 bo2snd = { path = "../bo2snd" }
 serde_json.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_System_Diagnostics_ToolHelp"] }

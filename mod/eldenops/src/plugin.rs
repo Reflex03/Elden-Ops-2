@@ -52,6 +52,24 @@ pub fn log(m: impl AsRef<str>) {
 
 static START: std::sync::OnceLock<Instant> = std::sync::OnceLock::new();
 
+/// Elden Ring's own top-level window is up and visible.
+fn game_window_visible() -> bool {
+    use windows_sys::Win32::Foundation::{BOOL, HWND, LPARAM};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{EnumWindows, IsWindowVisible};
+    unsafe extern "system" fn each(w: HWND, found: LPARAM) -> BOOL {
+        let mut pid = 0u32;
+        unsafe { GetWindowThreadProcessId(w, &mut pid) };
+        if pid == unsafe { GetCurrentProcessId() } && unsafe { IsWindowVisible(w) } != 0 {
+            unsafe { *(found as *mut bool) = true };
+            return 0;
+        }
+        1
+    }
+    let mut found = false;
+    unsafe { EnumWindows(Some(each), &mut found as *mut bool as LPARAM) };
+    found
+}
+
 fn game_focused() -> bool {
     unsafe {
         let w = GetForegroundWindow();
@@ -84,11 +102,21 @@ fn run() {
     std::panic::set_hook(Box::new(|i| log(format!("panic: {i}"))));
     crate::melty_test::start();
 
+    // Touch nothing while Elden Ring boots: wait for its window (field note: early singleton scans
+    // and early DirectX hooks are what break FromSoftware games at startup).
+    let t0 = Instant::now();
+    while !game_window_visible() {
+        std::thread::sleep(Duration::from_millis(250));
+    }
+    log(format!("boot: game window visible after {:.1}s", t0.elapsed().as_secs_f32()));
+    std::thread::sleep(Duration::from_secs(3));
+
     let audio = crate::audio::start(|m| log(m));
 
     std::thread::spawn(|| {
-        // Let the game create its window and swap chain first.
-        std::thread::sleep(Duration::from_secs(5));
+        // Hook the swap chain only once the game has been drawing for a while.
+        std::thread::sleep(Duration::from_secs(7));
+        log("boot: hooking DirectX 12 for the HUD");
         let hooks = hudhook::Hudhook::builder().with::<hudhook::hooks::dx12::ImguiDx12Hooks>(crate::hud::Overlay::default()).build();
         match hooks.apply() {
             Ok(()) => log("hud: DirectX 12 overlay hooked"),
@@ -96,6 +124,7 @@ fn run() {
         }
     });
 
+    log("boot: waiting for the game's task system");
     let cs_task = match CSTaskImp::wait_for_instance(Duration::MAX) {
         Ok(t) => t,
         Err(e) => {
@@ -138,7 +167,11 @@ pub unsafe extern "system" fn DllMain(hmodule: usize, reason: u32, _: usize) -> 
         if n > 0 {
             let _ = MODULE.set(PathBuf::from(String::from_utf16_lossy(&buf[..n])));
         }
-        std::thread::spawn(run);
+        std::thread::spawn(|| {
+            if std::panic::catch_unwind(run).is_err() {
+                log("boot: stopped after a panic (the game keeps running without Elden Ops)");
+            }
+        });
     }
     1
 }

@@ -34,7 +34,7 @@ Solo only.
 - `mod/eldenops` — a native DLL that ModEngine2 loads into Elden Ring (`package/config_eldenops.toml`). It reads
   and writes Elden Ring through [fromsoftware-rs](https://github.com/vswarte/fromsoftware-rs), draws the HUD with
   [hudhook](https://github.com/veeenu/hudhook) and plays audio with [rodio](https://github.com/RustAudio/rodio).
-- `mod/eldenops-setup` — runs once on first Play. It asks [OpenAssetTools](https://github.com/Laupetin/OpenAssetTools)'
+- `mod/eldenops-setup` (`EldenOps.exe`) — `--play` starts Elden Ring through the bundled ModEngine2 with the exact game path and logs it (`launch.log`); on the first Play it then, in the background, asks [OpenAssetTools](https://github.com/Laupetin/OpenAssetTools)'
   Unlinker for the **names** in your BO2 Zombies fastfiles' sound alias tables (`--skip-obj`: no audio is loaded),
   then finds each sound in your `.sabl`/`.sabs` banks by the game's own name hash. It writes a small index
   (`%LOCALAPPDATA%\EldenOps\bo2_index.json`: names, bank file, offset, size). No BO2 audio is copied anywhere;

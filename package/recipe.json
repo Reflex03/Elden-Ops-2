@@ -18,7 +18,7 @@
       "id": "main",
       "kind": "main",
       "label": "Elden Ops",
-      "fileName": "EldenOps-0.1.0.zip",
+      "fileName": "EldenOps-0.1.6.zip",
       "required": true
     }
   ],
@@ -38,39 +38,16 @@
       }
     }
   ],
-  "setup": {
-    "label": "Black Ops II's sounds",
-    "launch": {
-      "kind": "exe",
-      "path": "{managed}/modengine2/eldenops/EldenOpsSetup.exe",
-      "args": [
-        "--prepare"
-      ],
-      "env": {
-        "ELDENOPS_BO2": "{game:custom-call-of-duty-black-ops-ii}",
-        "ELDENOPS_MANAGED": "{managed}"
-      }
-    },
-    "done": {
-      "file": "{managed}/.melty-ready",
-      "contains": "eldenops-0.1.0-prep-1"
-    },
-    "failure": {
-      "file": "{managed}/.melty-failure.txt"
-    }
-  },
   "launch": {
     "kind": "exe",
-    "path": "{managed}/modengine2/modengine2_launcher.exe",
+    "path": "{managed}/modengine2/eldenops/EldenOps.exe",
     "args": [
-      "-t",
-      "er",
-      "-c",
-      "config_eldenops.toml"
+      "--play"
     ],
     "cwd": "{managed}/modengine2",
     "env": {
       "ELDENOPS_BO2": "{game:custom-call-of-duty-black-ops-ii}",
+      "ELDENOPS_ER": "{game}",
       "ELDENOPS_MANAGED": "{managed}"
     }
   },
@@ -79,7 +56,7 @@
   ],
   "notes": {
     "beforeInstall": "Needs Elden Ring 1.17.1 (2.7.1.0) and Call of Duty: Black Ops II - Zombies installed. Elden Ring runs offline through ModEngine2 with Easy Anti-Cheat off: use a separate save if you also play online. Black Ops II doesn't run: its round music, perk jingles and stings are read from your own copy.",
-    "firstLaunch": "Elden Ops keeps your Elden Ring save as it is. Load your character and Round 1 starts at the grace: F5 Juggernog, F6 Speed Cola, F7 Double Tap, F8 Quick Revive."
+    "firstLaunch": "The first Play reads Black Ops II Zombies' sound names from your copy in the background while Elden Ring loads; the BO2 music and stings switch on when it's done. Load your character and Round 1 starts at the grace: F5 Juggernog, F6 Speed Cola, F7 Double Tap, F8 Quick Revive."
   },
   "test": {
     "checks": [
@@ -87,6 +64,6 @@
       "bo2-sounds",
       "hud-drawn"
     ],
-    "minutes": 4
+    "minutes": 8
   }
 }

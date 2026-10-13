@@ -8,7 +8,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-VERSION = "0.1.0"
+VERSION = "0.1.6"
 REL = ROOT / "mod" / "target" / "x86_64-pc-windows-msvc" / "release"
 OAT = ROOT / "vendor" / "oat"
 ME2 = ROOT / "vendor" / "me2" / "ModEngine-2.1.0.0-win64"
@@ -61,7 +61,7 @@ def main():
     files = {
         "modengine2/config_eldenops.toml": ROOT / "package" / "config_eldenops.toml",
         "modengine2/eldenops/eldenops.dll": REL / "eldenops.dll",
-        "modengine2/eldenops/EldenOpsSetup.exe": REL / "EldenOpsSetup.exe",
+        "modengine2/eldenops/EldenOps.exe": REL / "EldenOps.exe",
         "modengine2/eldenops/oat/Unlinker.exe": OAT / "Unlinker.exe",
         "modengine2/eldenops/oat/msvcp140.dll": OAT / "msvcp140.dll",
         "modengine2/eldenops/oat/vcruntime140.dll": OAT / "vcruntime140.dll",

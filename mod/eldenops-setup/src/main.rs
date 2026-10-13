@@ -1,6 +1,6 @@
-//! Elden Ops first-Play setup.
+//! Elden Ops' own program: first-Play setup (`--prepare`) and the launch (`--play`).
 //!
-//! Melty runs `EldenOpsSetup.exe --prepare` once, with ELDENOPS_BO2 = the player's Black Ops II
+//! Melty runs `EldenOps.exe --prepare` once, with ELDENOPS_BO2 = the player's Black Ops II
 //! folder. It reads only alias *names* from the player's own BO2 Zombies fastfiles (OpenAssetTools'
 //! Unlinker with --skip-obj, which loads no audio), then finds where each sound lives in the
 //! player's own .sabl/.sabs banks. The result is a small index of names and offsets; no BO2 audio
@@ -15,9 +15,9 @@ mod aliases;
 use aliases::ALIASES;
 
 /// Zombies fastfiles to read alias tables from, in order; the rest of zone/all/zm_*.ff follow.
-const PREFERRED_ZONES: &[&str] = &["zm_transit", "zm_nuked", "zm_highrise", "zm_prison", "zm_buried", "zm_tomb"];
+const PREFERRED_ZONES: &[&str] = &["common_zm", "zm_transit", "zm_nuked", "zm_highrise", "zm_prison", "zm_buried", "zm_tomb"];
 
-pub const READY_TAG: &str = "eldenops-0.1.0-prep-1";
+
 
 struct Ctx {
     log: std::fs::File,
@@ -31,7 +31,7 @@ impl Ctx {
     }
 }
 
-fn data_dir() -> PathBuf {
+pub(crate) fn data_dir() -> PathBuf {
     let base = std::env::var_os("LOCALAPPDATA").map(PathBuf::from).unwrap_or_else(std::env::temp_dir);
     base.join("EldenOps")
 }
@@ -40,7 +40,7 @@ fn managed_dir(exe: &Path) -> PathBuf {
     if let Some(m) = std::env::var_os("ELDENOPS_MANAGED") {
         return PathBuf::from(m);
     }
-    // {managed}/modengine2/eldenops/EldenOpsSetup.exe
+    // {managed}/modengine2/eldenops/EldenOps.exe
     exe.parent().and_then(Path::parent).and_then(Path::parent).map(Path::to_path_buf).unwrap_or_default()
 }
 
@@ -52,7 +52,7 @@ fn zones(bo2: &Path) -> Vec<PathBuf> {
                 .map(|e| e.path())
                 .filter(|p| {
                     let n = p.file_name().unwrap().to_string_lossy().to_ascii_lowercase();
-                    n.starts_with("zm_") && n.ends_with(".ff") && !n.contains("_patch")
+                    (n == "common_zm.ff" || n.starts_with("zm_")) && n.ends_with(".ff") && !n.contains("_patch")
                 })
                 .collect()
         })
@@ -66,6 +66,9 @@ fn zones(bo2: &Path) -> Vec<PathBuf> {
 
 fn run_unlinker(cx: &mut Ctx, unlinker: &Path, zone: &Path, out: &Path, filtered: bool) -> bool {
     let mut cmd = Command::new(unlinker);
+    if let Some(dir) = unlinker.parent() {
+        cmd.current_dir(dir);
+    }
     cmd.arg("--skip-obj").arg("--no-color");
     if filtered {
         cmd.arg("--include-assets").arg("soundbank"); // T6 asset type name (OpenAssetTools GameT6.cpp)
@@ -136,6 +139,7 @@ fn prepare(cx: &mut Ctx, exe: &Path) -> Result<(), String> {
         if wanted.len() == ALIASES.len() {
             break;
         }
+        let t = std::time::Instant::now();
         cx.say(format!("Reading alias names from {}", zone.display()));
         let out = work.join(zone.file_stem().unwrap());
         run_unlinker(cx, &unlinker, zone, &out, filtered);
@@ -149,7 +153,7 @@ fn prepare(cx: &mut Ctx, exe: &Path) -> Result<(), String> {
             cx.say(format!("  {n} alias tables"));
         }
         let _ = std::fs::remove_dir_all(&out);
-        cx.say(format!("  {} of {} sounds named so far", wanted.len(), ALIASES.len()));
+        cx.say(format!("  {} of {} sounds named so far ({:.1}s)", wanted.len(), ALIASES.len(), t.elapsed().as_secs_f32()));
     }
     let _ = std::fs::remove_dir_all(&work);
 
@@ -164,7 +168,14 @@ fn prepare(cx: &mut Ctx, exe: &Path) -> Result<(), String> {
         cx.say(format!("  not found: {m}"));
     }
     if index.sounds.is_empty() {
-        return Err("Could not find Black Ops II Zombies' sounds in its sound banks. Verify Black Ops II's files in Steam, then press Play.".into());
+        let why = if wanted.is_empty() {
+            format!("its alias tables gave none of the {} sound names ({} Zombies maps read)", ALIASES.len(), zone_list.len())
+        } else if index.banks_scanned == 0 {
+            format!("{} sounds were named, but no .sabl/.sabs sound banks were found under {} or {}", wanted.len(), bo2.join("sound").display(), bo2.join("zone").display())
+        } else {
+            format!("{} sounds were named, but none were in its {} sound banks", wanted.len(), index.banks_scanned)
+        };
+        return Err(format!("Could not find Black Ops II Zombies' sounds: {why}. Verify Black Ops II's files in Steam, then press Play. Details: %LOCALAPPDATA%\\EldenOps\\setup.log"));
     }
     let path = data_dir().join("bo2_index.json");
     std::fs::write(&path, serde_json::to_string_pretty(&index).unwrap()).map_err(|e| format!("writing {}: {e}", path.display()))?;
@@ -172,29 +183,58 @@ fn prepare(cx: &mut Ctx, exe: &Path) -> Result<(), String> {
     Ok(())
 }
 
+mod play;
+
+pub(crate) fn index_path() -> PathBuf {
+    data_dir().join("bo2_index.json")
+}
+
+pub(crate) fn failed_path() -> PathBuf {
+    data_dir().join("bo2_index_failed.txt")
+}
+
+/// An index made from this Black Ops II folder already exists.
+fn index_is_current() -> bool {
+    let Some(bo2) = std::env::var_os("ELDENOPS_BO2") else { return false };
+    let Ok(text) = std::fs::read_to_string(index_path()) else { return false };
+    let Ok(idx) = serde_json::from_str::<bo2snd::SoundIndex>(&text) else { return false };
+    idx.version == bo2snd::INDEX_VERSION && !idx.sounds.is_empty() && PathBuf::from(&idx.bo2_dir) == PathBuf::from(bo2)
+}
+
+/// Builds the BO2 sound index (setup.log); on failure leaves its reason for the DLL to report.
+fn build_index(exe: &Path) -> bool {
+    let log = std::fs::File::create(data_dir().join("setup.log")).expect("setup log");
+    let mut cx = Ctx { log };
+    let _ = std::fs::remove_file(failed_path());
+    let t = std::time::Instant::now();
+    match prepare(&mut cx, exe) {
+        Ok(()) => {
+            cx.say(format!("ready in {:.1}s", t.elapsed().as_secs_f32()));
+            true
+        }
+        Err(e) => {
+            cx.say(format!("setup failed after {:.1}s: {e}", t.elapsed().as_secs_f32()));
+            let _ = std::fs::write(failed_path(), &e);
+            false
+        }
+    }
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let exe = std::env::current_exe().unwrap_or_default();
     let _ = std::fs::create_dir_all(data_dir());
-    let log = std::fs::File::create(data_dir().join("setup.log")).expect("setup log");
-    let mut cx = Ctx { log };
-    if !args.iter().any(|a| a == "--prepare") {
-        cx.say("usage: EldenOpsSetup.exe --prepare   (ELDENOPS_BO2 = Black Ops II folder)");
-        std::process::exit(2);
-    }
-    let managed = managed_dir(&exe);
-    let ready = managed.join(".melty-ready");
-    let failure = managed.join(".melty-failure.txt");
-    let _ = std::fs::remove_file(&failure);
-    match prepare(&mut cx, &exe) {
-        Ok(()) => {
-            let _ = std::fs::write(&ready, READY_TAG);
-            cx.say("ready");
+    if args.iter().any(|a| a == "--play") {
+        // Start the game first; build the BO2 sound index (first Play only) while it loads.
+        let code = play::play(&managed_dir(&exe));
+        if code == 0 && !index_is_current() {
+            build_index(&exe);
         }
-        Err(e) => {
-            cx.say(format!("setup failed: {e}"));
-            let _ = std::fs::write(&failure, &e);
-            std::process::exit(1);
-        }
+        std::process::exit(code);
     }
+    if args.iter().any(|a| a == "--prepare") {
+        std::process::exit(if build_index(&exe) { 0 } else { 1 });
+    }
+    println!("usage: EldenOps.exe --play | --prepare   (ELDENOPS_BO2 = Black Ops II folder, ELDENOPS_ER = Elden Ring folder)");
+    std::process::exit(2);
 }

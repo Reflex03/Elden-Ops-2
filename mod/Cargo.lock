@@ -97,7 +97,7 @@ checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "bo2snd"
-version = "0.1.0"
+version = "0.1.6"
 dependencies = [
  "serde",
  "serde_json",
@@ -271,7 +271,7 @@ checksum = "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
 
 [[package]]
 name = "eldenops"
-version = "0.1.0"
+version = "0.1.6"
 dependencies = [
  "bo2snd",
  "eldenring",
@@ -286,10 +286,11 @@ dependencies = [
 
 [[package]]
 name = "eldenops-setup"
-version = "0.1.0"
+version = "0.1.6"
 dependencies = [
  "bo2snd",
  "serde_json",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
