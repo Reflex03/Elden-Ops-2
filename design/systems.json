@@ -1,0 +1,125 @@
+{
+  "sheet": "systems",
+  "about": "The mashup's game systems. Each row is one system and what it touches.",
+  "columns": [
+    "id",
+    "name",
+    "behaviour",
+    "rules",
+    "sounds",
+    "hooks"
+  ],
+  "rows": [
+    {
+      "id": "sys_round_flow",
+      "name": "Rounds",
+      "behaviour": "Round 1 starts first_round_delay seconds after loading in. Each round needs BO2's zombie total in kills (solo). When it is reached: round-over music, zombie_between_round_time seconds, next round. Resting at a grace respawns the Lands Between's enemies, refilling the horde.",
+      "rules": [
+        "first_round_delay",
+        "zombie_max_ai",
+        "zombie_ai_per_player",
+        "zombie_between_round_time"
+      ],
+      "sounds": [
+        "snd_round_start",
+        "snd_round_over"
+      ],
+      "hooks": [
+        "hook_frame_task",
+        "hook_main_player",
+        "hook_chr_sets",
+        "hook_enemy_hp",
+        "hook_last_hit_by"
+      ]
+    },
+    {
+      "id": "sys_round_scaling",
+      "name": "Horde health",
+      "behaviour": "Enemies within horde_radius are scaled once per round: HP x (1 + er_health_scale x (BO2 zombie health for this round / zombie_health_start - 1)).",
+      "rules": [
+        "zombie_health_start",
+        "zombie_health_increase",
+        "zombie_health_increase_multiplier",
+        "er_health_scale",
+        "horde_radius"
+      ],
+      "sounds": [],
+      "hooks": [
+        "hook_chr_sets",
+        "hook_enemy_hp",
+        "hook_enemy_position"
+      ]
+    },
+    {
+      "id": "sys_points",
+      "name": "Points",
+      "behaviour": "Start with starting_points. Earn scoring rows. Shown on the HUD. Kept until death without Quick Revive (game over resets to round 1 and starting points).",
+      "rules": [
+        "starting_points"
+      ],
+      "sounds": [
+        "snd_purchase",
+        "snd_deny"
+      ],
+      "hooks": [
+        "hook_enemy_hp",
+        "hook_last_hit_by",
+        "hook_hud_overlay"
+      ]
+    },
+    {
+      "id": "sys_perks",
+      "name": "Perk-a-Colas",
+      "behaviour": "Press a perk's key to buy it for its BO2 cost: cha-ching, its sting, then the bottle bump. Between rounds a random unowned perk's idle jingle plays, as BO2's machines do. Owned perks show on the HUD shelf. All perks are lost on game over and when Quick Revive is used (as when downed in BO2). Juggernog's pool refills when a round starts.",
+      "rules": [],
+      "sounds": [
+        "snd_purchase",
+        "snd_deny",
+        "snd_bump"
+      ],
+      "hooks": [
+        "hook_keyboard",
+        "hook_player_hp",
+        "hook_player_stamina",
+        "hook_player_no_dead",
+        "hook_enemy_hp"
+      ]
+    },
+    {
+      "id": "sys_game_over",
+      "name": "Game over",
+      "behaviour": "Player dies without Quick Revive: BO2 game-over music, 'You survived N rounds', reset to round 1 and starting points when they respawn.",
+      "rules": [
+        "starting_points"
+      ],
+      "sounds": [
+        "snd_game_over"
+      ],
+      "hooks": [
+        "hook_player_hp",
+        "hook_main_player"
+      ]
+    },
+    {
+      "id": "sys_bo2_audio",
+      "name": "BO2 audio",
+      "behaviour": "Setup (first Play) runs OpenAssetTools on the player's own BO2 Zombies fastfiles for alias names only and indexes which sound bank holds each sound. At play time the mod reads those bytes from the player's .sabl/.sabs and plays them. No BO2 audio is written anywhere.",
+      "rules": [],
+      "sounds": [],
+      "hooks": [
+        "hook_bo2_alias_index",
+        "hook_bo2_soundbanks"
+      ]
+    },
+    {
+      "id": "sys_hud",
+      "name": "HUD",
+      "behaviour": "BO2-style red round number bottom-left, points above it, perk shelf, short messages (ROUND 3, NOT ENOUGH POINTS, YOU SURVIVED 5 ROUNDS).",
+      "rules": [],
+      "sounds": [],
+      "hooks": [
+        "hook_hud_overlay"
+      ]
+    }
+  ]
+}

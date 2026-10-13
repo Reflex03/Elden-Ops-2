@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "mode": "installed",
+  "games": [
+    {
+      "slug": "elden-ring",
+      "role": "primary",
+      "version": ">=2.7.1.0 <=2.7.1.1"
+    },
+    {
+      "slug": "custom-call-of-duty-black-ops-ii",
+      "role": "companion"
+    }
+  ],
+  "requirements": [],
+  "components": [
+    {
+      "id": "main",
+      "kind": "main",
+      "label": "Elden Ops",
+      "fileName": "EldenOps-0.1.0.zip",
+      "required": true
+    }
+  ],
+  "mappings": [
+    {
+      "component": "main",
+      "from": "modengine2/",
+      "to": "{managed}/modengine2"
+    }
+  ],
+  "settings": [
+    {
+      "file": "{managed}/eldenops.env",
+      "set": {
+        "ELDENOPS_BO2": "{game:custom-call-of-duty-black-ops-ii}",
+        "ELDENOPS_MANAGED": "{managed}"
+      }
+    }
+  ],
+  "setup": {
+    "label": "Black Ops II's sounds",
+    "launch": {
+      "kind": "exe",
+      "path": "{managed}/modengine2/eldenops/EldenOpsSetup.exe",
+      "args": [
+        "--prepare"
+      ],
+      "env": {
+        "ELDENOPS_BO2": "{game:custom-call-of-duty-black-ops-ii}",
+        "ELDENOPS_MANAGED": "{managed}"
+      }
+    },
+    "done": {
+      "file": "{managed}/.melty-ready",
+      "contains": "eldenops-0.1.0-prep-1"
+    },
+    "failure": {
+      "file": "{managed}/.melty-failure.txt"
+    }
+  },
+  "launch": {
+    "kind": "exe",
+    "path": "{managed}/modengine2/modengine2_launcher.exe",
+    "args": [
+      "-t",
+      "er",
+      "-c",
+      "config_eldenops.toml"
+    ],
+    "cwd": "{managed}/modengine2",
+    "env": {
+      "ELDENOPS_BO2": "{game:custom-call-of-duty-black-ops-ii}",
+      "ELDENOPS_MANAGED": "{managed}"
+    }
+  },
+  "runtimeData": [
+    "{localappdata}/EldenOps"
+  ],
+  "notes": {
+    "beforeInstall": "Needs Elden Ring 1.17.1 (2.7.1.0) and Call of Duty: Black Ops II - Zombies installed. Elden Ring runs offline through ModEngine2 with Easy Anti-Cheat off: use a separate save if you also play online. Black Ops II doesn't run: its round music, perk jingles and stings are read from your own copy.",
+    "firstLaunch": "Elden Ops keeps your Elden Ring save as it is. Load your character and Round 1 starts at the grace: F5 Juggernog, F6 Speed Cola, F7 Double Tap, F8 Quick Revive."
+  },
+  "test": {
+    "checks": [
+      "mod-loads",
+      "bo2-sounds",
+      "hud-drawn"
+    ],
+    "minutes": 4
+  }
+}

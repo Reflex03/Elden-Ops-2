@@ -1,0 +1,21 @@
+[package]
+name = "eldenops"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+bo2snd = { path = "../bo2snd" }
+serde.workspace = true
+serde_json.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+eldenring = { git = "https://github.com/vswarte/fromsoftware-rs", rev = "6933967b176332a37e9ce6773f8dcd74b9feaf42" }
+fromsoftware-shared = { git = "https://github.com/vswarte/fromsoftware-rs", rev = "6933967b176332a37e9ce6773f8dcd74b9feaf42" }
+hudhook = { version = "=0.9.3", default-features = false, features = ["dx12"] }
+imgui = "0.12"
+rodio = { version = "0.20", default-features = false, features = ["flac"] }
+windows-sys = { version = "0.59", features = ["Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Foundation", "Win32_System_Threading", "Win32_System_LibraryLoader"] }

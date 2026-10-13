@@ -1,0 +1,24 @@
+{
+  "sheet": "scoring",
+  "about": "Points the player earns, from BO2's own score vars (solo values). Elden Ring has no hit locations, so BO2's head/neck/torso bonuses are not used.",
+  "columns": [
+    "id",
+    "points",
+    "bo2_source",
+    "trigger"
+  ],
+  "rows": [
+    {
+      "id": "score_damage",
+      "points": 10,
+      "bo2_source": "_zm.gsc zombie_score_damage_normal",
+      "trigger": "hook_enemy_hp drops while hook_last_hit_by is the player"
+    },
+    {
+      "id": "score_kill",
+      "points": 50,
+      "bo2_source": "_zm.gsc zombie_score_kill_1player",
+      "trigger": "hook_enemy_hp reaches 0 while hook_last_hit_by is the player"
+    }
+  ]
+}

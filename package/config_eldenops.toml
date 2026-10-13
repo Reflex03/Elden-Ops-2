@@ -1,0 +1,13 @@
+# Elden Ops: ModEngine2 profile. Melty starts Elden Ring with this file, offline, Easy Anti-Cheat off.
+[modengine]
+debug = false
+external_dlls = [ "eldenops\\eldenops.dll" ]
+
+[extension.mod_loader]
+enabled = true
+loose_params = false
+# Elden Ops changes no game files.
+mods = []
+
+[extension.scylla_hide]
+enabled = false

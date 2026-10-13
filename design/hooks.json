@@ -1,0 +1,104 @@
+{
+  "sheet": "hooks",
+  "about": "Every place the mod reads or writes Elden Ring or Black Ops II. Elden Ring fields come from fromsoftware-rs (eldenring crate), Elden Ring 2.7.1.0 WW / 2.7.1.1 JP.",
+  "columns": [
+    "id",
+    "game",
+    "path",
+    "access",
+    "purpose"
+  ],
+  "rows": [
+    {
+      "id": "hook_frame_task",
+      "game": "elden-ring",
+      "path": "CSTaskImp::run_recurring(FrameBegin)",
+      "access": "call",
+      "purpose": "run the round logic once per game frame on the game's own task thread"
+    },
+    {
+      "id": "hook_main_player",
+      "game": "elden-ring",
+      "path": "WorldChrMan.main_player",
+      "access": "read",
+      "purpose": "is the player loaded into the world"
+    },
+    {
+      "id": "hook_player_hp",
+      "game": "elden-ring",
+      "path": "PlayerIns.chr_ins.modules.data.hp / max_hp",
+      "access": "read-write",
+      "purpose": "Juggernog's pool refunds hits; Quick Revive restores full HP"
+    },
+    {
+      "id": "hook_player_stamina",
+      "game": "elden-ring",
+      "path": "PlayerIns.chr_ins.modules.data.stamina / max_stamina",
+      "access": "read-write",
+      "purpose": "Speed Cola stamina regeneration"
+    },
+    {
+      "id": "hook_player_no_dead",
+      "game": "elden-ring",
+      "path": "WorldChrManDbg.player_no_dead",
+      "access": "read-write",
+      "purpose": "Juggernog and Quick Revive: the player stops at 1 HP instead of dying, so the Juggernog pool can absorb the hit or Quick Revive can stand them up"
+    },
+    {
+      "id": "hook_chr_sets",
+      "game": "elden-ring",
+      "path": "WorldChrMan.chr_sets[*].characters()",
+      "access": "read",
+      "purpose": "every loaded character: the round's horde candidates"
+    },
+    {
+      "id": "hook_enemy_hp",
+      "game": "elden-ring",
+      "path": "ChrIns.modules.data.hp / max_hp",
+      "access": "read-write",
+      "purpose": "kill and hit detection, round health scaling, Double Tap extra damage"
+    },
+    {
+      "id": "hook_last_hit_by",
+      "game": "elden-ring",
+      "path": "ChrIns.last_hit_by vs main player field_ins_handle",
+      "access": "read",
+      "purpose": "credit hits and kills to the player"
+    },
+    {
+      "id": "hook_enemy_position",
+      "game": "elden-ring",
+      "path": "ChrIns.modules.physics.position vs player position",
+      "access": "read",
+      "purpose": "horde radius"
+    },
+    {
+      "id": "hook_hud_overlay",
+      "game": "elden-ring",
+      "path": "hudhook ImGui on the game's DirectX 12 swap chain",
+      "access": "draw",
+      "purpose": "round counter, points, perk shelf"
+    },
+    {
+      "id": "hook_keyboard",
+      "game": "elden-ring",
+      "path": "GetAsyncKeyState while the game window is focused",
+      "access": "read",
+      "purpose": "perk purchase keys"
+    },
+    {
+      "id": "hook_bo2_alias_index",
+      "game": "custom-call-of-duty-black-ops-ii",
+      "path": "OpenAssetTools Unlinker --skip-obj on {game:bo2}/zone/all/zm_*.ff -> soundbank/*.aliases.csv (Name, FileSource)",
+      "access": "read",
+      "purpose": "BO2 alias name -> sound file name (setup step, names only)"
+    },
+    {
+      "id": "hook_bo2_soundbanks",
+      "game": "custom-call-of-duty-black-ops-ii",
+      "path": "{game:bo2}/zone/**/*.sabl|*.sabs header '2UX#' v14, 20-byte entries, id = SND_HashName(FileSource)",
+      "access": "read",
+      "purpose": "find and read each sound's FLAC/PCM bytes in place"
+    }
+  ]
+}

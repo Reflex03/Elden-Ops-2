@@ -1,0 +1,111 @@
+{
+  "sheet": "sounds",
+  "about": "BO2 sound aliases played from the player's own Black Ops II sound banks. Alias names are BO2's, from its zombie scripts (_zm_audio.gsc, _zm_perks.gsc). Nothing is shipped: setup reads the alias tables, the mod reads the audio from the .sabl/.sabs files where they are.",
+  "columns": [
+    "id",
+    "bo2_alias",
+    "event",
+    "volume",
+    "required"
+  ],
+  "rows": [
+    {
+      "id": "snd_round_start",
+      "bo2_alias": "mus_zombie_round_start",
+      "event": "a round begins",
+      "volume": 0.9,
+      "required": true
+    },
+    {
+      "id": "snd_round_over",
+      "bo2_alias": "mus_zombie_round_over",
+      "event": "the round's horde is dead",
+      "volume": 0.9,
+      "required": true
+    },
+    {
+      "id": "snd_game_over",
+      "bo2_alias": "mus_zombie_game_over",
+      "event": "the player dies without Quick Revive",
+      "volume": 0.9,
+      "required": true
+    },
+    {
+      "id": "snd_purchase",
+      "bo2_alias": "zmb_cha_ching",
+      "event": "points spent",
+      "volume": 0.8,
+      "required": true
+    },
+    {
+      "id": "snd_deny",
+      "bo2_alias": "evt_perk_deny",
+      "event": "not enough points or perk already owned",
+      "volume": 0.8,
+      "required": true
+    },
+    {
+      "id": "snd_bump",
+      "bo2_alias": "zmb_perks_bump_bottle",
+      "event": "perk bottle drunk",
+      "volume": 0.8,
+      "required": true
+    },
+    {
+      "id": "snd_jugg_jingle",
+      "bo2_alias": "mus_perks_jugganog_jingle",
+      "event": "between rounds, the machine calls: Juggernog's idle jingle plays if the player doesn't own it yet",
+      "volume": 0.7,
+      "required": true
+    },
+    {
+      "id": "snd_jugg_sting",
+      "bo2_alias": "mus_perks_jugganog_sting",
+      "event": "Juggernog bought (BO2 plays the sting on purchase)",
+      "volume": 0.8,
+      "required": true
+    },
+    {
+      "id": "snd_speed_jingle",
+      "bo2_alias": "mus_perks_speed_jingle",
+      "event": "between rounds, the machine calls: Speed Cola's idle jingle plays if the player doesn't own it yet",
+      "volume": 0.7,
+      "required": true
+    },
+    {
+      "id": "snd_speed_sting",
+      "bo2_alias": "mus_perks_speed_sting",
+      "event": "Speed Cola bought (BO2 plays the sting on purchase)",
+      "volume": 0.8,
+      "required": true
+    },
+    {
+      "id": "snd_doubletap_jingle",
+      "bo2_alias": "mus_perks_doubletap_jingle",
+      "event": "between rounds, the machine calls: Double Tap's idle jingle plays if the player doesn't own it yet",
+      "volume": 0.7,
+      "required": true
+    },
+    {
+      "id": "snd_doubletap_sting",
+      "bo2_alias": "mus_perks_doubletap_sting",
+      "event": "Double Tap bought (BO2 plays the sting on purchase)",
+      "volume": 0.8,
+      "required": true
+    },
+    {
+      "id": "snd_revive_jingle",
+      "bo2_alias": "mus_perks_revive_jingle",
+      "event": "between rounds, the machine calls: Quick Revive's idle jingle plays if the player doesn't own it yet",
+      "volume": 0.7,
+      "required": true
+    },
+    {
+      "id": "snd_revive_sting",
+      "bo2_alias": "mus_perks_revive_sting",
+      "event": "Quick Revive bought (BO2 plays the sting on purchase), or used to self-revive",
+      "volume": 0.8,
+      "required": true
+    }
+  ]
+}

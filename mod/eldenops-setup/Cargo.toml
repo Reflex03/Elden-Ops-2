@@ -1,0 +1,13 @@
+[package]
+name = "eldenops-setup"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "EldenOpsSetup"
+path = "src/main.rs"
+
+[dependencies]
+bo2snd = { path = "../bo2snd" }
+serde_json.workspace = true

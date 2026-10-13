@@ -1,0 +1,71 @@
+{
+  "sheet": "perks",
+  "about": "The four Perk-a-Colas in the first version. Costs are BO2's (_zm_perks.gsc perk machine costs, solo Quick Revive). Effects are translated to Elden Ring systems: Juggernog takes BO2's health from 100 to 250, so it adds a pool of 1.5x max HP that absorbs damage and refills at each round start.",
+  "columns": [
+    "id",
+    "name",
+    "bo2_specialty",
+    "cost",
+    "key",
+    "key_vk",
+    "jingle_sound",
+    "sting_sound",
+    "effect",
+    "effect_value",
+    "hook"
+  ],
+  "rows": [
+    {
+      "id": "perk_jugg",
+      "name": "Juggernog",
+      "bo2_specialty": "specialty_armorvest",
+      "cost": 2500,
+      "key": "F5",
+      "key_vk": 116,
+      "jingle_sound": "snd_jugg_jingle",
+      "sting_sound": "snd_jugg_sting",
+      "effect": "bonus_health_pool_of_max",
+      "effect_value": 1.5,
+      "hook": "hook_player_hp"
+    },
+    {
+      "id": "perk_speed",
+      "name": "Speed Cola",
+      "bo2_specialty": "specialty_fastreload",
+      "cost": 3000,
+      "key": "F6",
+      "key_vk": 117,
+      "jingle_sound": "snd_speed_jingle",
+      "sting_sound": "snd_speed_sting",
+      "effect": "stamina_regen_per_second_of_max",
+      "effect_value": 0.35,
+      "hook": "hook_player_stamina"
+    },
+    {
+      "id": "perk_doubletap",
+      "name": "Double Tap Root Beer",
+      "bo2_specialty": "specialty_rof",
+      "cost": 2000,
+      "key": "F7",
+      "key_vk": 118,
+      "jingle_sound": "snd_doubletap_jingle",
+      "sting_sound": "snd_doubletap_sting",
+      "effect": "damage_dealt_multiplier",
+      "effect_value": 2.0,
+      "hook": "hook_enemy_hp"
+    },
+    {
+      "id": "perk_revive",
+      "name": "Quick Revive",
+      "bo2_specialty": "specialty_quickrevive",
+      "cost": 500,
+      "key": "F8",
+      "key_vk": 119,
+      "jingle_sound": "snd_revive_jingle",
+      "sting_sound": "snd_revive_sting",
+      "effect": "self_revive_full_hp_once",
+      "effect_value": 1.0,
+      "hook": "hook_player_no_dead"
+    }
+  ]
+}
